@@ -1,6 +1,6 @@
 {
   "name": "typedoc-sveltepress-theme",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A TypeDoc ( + typedoc-plugin-markdown ) theme that generates Markdown compatible with SveltePress.",
   "exports": {
     ".": "./dist/index.js"

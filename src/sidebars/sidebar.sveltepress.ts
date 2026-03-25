@@ -46,7 +46,8 @@ function getNavigationItem(
 
 function getParsedUrl(url: string) {
   if (path.basename(url) === 'index.md') {
-    return path.dirname(url) === '.' ? '' : path.dirname(url) + '/';
+    const dir = path.dirname(url);
+    return (dir === '.' ? '' : dir + '/') + 'overview';
   }
   return url.replace(/\.md$/, '');
 }

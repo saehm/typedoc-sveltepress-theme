@@ -42,15 +42,12 @@ export function load(app: MarkdownApplication) {
   );
 
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
-    const isIndex = path.basename(page.filename) === 'index.md';
-    if (isIndex) {
-      // index.md → +page.md (same directory)
-      page.filename = path.join(path.dirname(page.filename), '+page.md');
-    } else if (page.filename.endsWith('.md')) {
-      // foo.md → foo/+page.md (one level deeper)
+    if (page.filename.endsWith('.md')) {
       const dir = path.dirname(page.filename);
       const base = path.basename(page.filename, '.md');
-      page.filename = path.join(dir, base, '+page.md');
+      // index.md → overview/+page.md, foo.md → foo/+page.md
+      const folderName = base === 'index' ? 'overview' : base;
+      page.filename = path.join(dir, folderName, '+page.md');
     }
 
     // Set frontmatter title — required by SveltePress since hidePageHeader
@@ -99,8 +96,9 @@ export function load(app: MarkdownApplication) {
 
         let absolutePath: string;
         if (resolved.endsWith('index.md')) {
-          // foo/index.md → /basePath/foo/
-          absolutePath = (basePath + '/' + resolved.slice(0, -'index.md'.length)).replace(/\/+/g, '/');
+          // foo/index.md → /basePath/foo/overview/
+          const dir = resolved.slice(0, -'index.md'.length);
+          absolutePath = (basePath + '/' + dir + 'overview/').replace(/\/+/g, '/');
         } else {
           // foo/bar.md → /basePath/foo/bar/
           absolutePath = (basePath + '/' + resolved.replace(/\.md$/, '/')).replace(/\/+/g, '/');
