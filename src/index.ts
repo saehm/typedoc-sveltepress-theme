@@ -116,17 +116,34 @@ export function load(app: MarkdownApplication) {
       page.contents = page.contents.replace(/<a id="[^"]*"><\/a>\s*/g, '');
     }
 
-    // Convert markdown links [text](url) to SveltePress <Link> components.
-    // mdsvex fails to render plain markdown link syntax inside GFM table cells,
-    // causing "[text](url)" to appear as "text]" in the browser.
-    // <Link> is a built-in SveltePress component available in all .md files.
+    // Convert markdown links and inline code spans to HTML/Svelte equivalents.
+    // mdsvex does not reliably process inline markdown (links, code spans) on
+    // lines that also contain Svelte components like <Link>, so we convert them
+    // explicitly here.
     if (page.contents) {
       page.contents = mapLinesOutsideFencedBlocks(page.contents, (line) =>
         line.replace(
           /(`[^`]*`)|(\[([^\]]+)\]\(([^)]+)\))/g,
           (_match, code, _full, label, to) => {
-            if (code) return code;
-            return `<Link to="${to}" label="${label.replace(/"/g, '&quot;')}" />`;
+            if (code) {
+              // Convert inline code span to <code> HTML. Escape characters that
+              // would be misinterpreted by Svelte or HTML parsers:
+              // - & < >  → HTML entities (safe across the whole pipeline)
+              // - { }    → Svelte string-literal expressions {'{'}  {'}'}
+              //            because &#123;/&#125; get decoded by remark-rehype
+              //            before Svelte sees them, making { visible to Svelte.
+              //            Single replace() call so replacements are not re-scanned.
+              const inner = code.slice(1, -1)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/[{}]/g, (m) => m === '{' ? "{'{'}" : "{'}'}");
+              return `<code>${inner}</code>`;
+            }
+            const isCodeLabel = label.startsWith('`') && label.endsWith('`');
+            const cleanLabel = label.replace(/`/g, '').replace(/"/g, '&quot;');
+            const link = `<Link to="${to}" label="${cleanLabel}" />`;
+            return isCodeLabel ? `<code>${link}</code>` : link;
           },
         ),
       );

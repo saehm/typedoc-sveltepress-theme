@@ -42,13 +42,30 @@ export const mapLinesOutsideFencedBlocks = (
 };
 
 /**
- * Escapes `{` and `}` characters in markdown prose (outside code blocks) so
- * that mdsvex (used by SveltePress) does not treat them as Svelte expressions.
+ * Escapes characters that mdsvex/Svelte would misinterpret as syntax:
+ * - `{` / `}` → HTML entities (Svelte expression delimiters)
+ * - `\<` / `\>` → `&lt;` / `&gt;` (markdown-escaped angle brackets, e.g.
+ *   from TypeScript generics like `Array\<string\>`; Svelte still tries to
+ *   parse the resulting `<` as a component/element tag)
+ * Leaves inline code spans and fenced code blocks untouched.
  */
 export const escapeSvelteInMarkdown = (content: string): string =>
   mapLinesOutsideFencedBlocks(content, (line) =>
-    line.replace(/(`[^`]+`)|([{}])/g, (match, code) => {
-      if (code) return code;
-      return match === '{' ? '&#123;' : '&#125;';
-    }),
+    // Groups (in order):
+    //   1. backtick code spans  `` `...` ``          — leave as-is
+    //   2. <code>...</code> HTML spans               — leave as-is (already use
+    //                                                  {'{'}…{'}'} for braces)
+    //   3. { or }                                    — escape to HTML entities
+    //   4. \< or \>  (markdown-escaped angle brackets) — convert to &lt;/&gt;
+    line.replace(
+      /(`[^`]*`)|(<code>[^<]*<\/code>)|([{}])|(\\\<)|(\\\>)/g,
+      (match, backtick, codeTag) => {
+        if (backtick || codeTag) return match;
+        if (match === '{') return '&#123;';
+        if (match === '}') return '&#125;';
+        if (match === '\\<') return '&lt;';
+        if (match === '\\>') return '&gt;';
+        return match;
+      },
+    ),
   );
