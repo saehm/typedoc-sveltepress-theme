@@ -41,13 +41,9 @@ export function load(app: MarkdownApplication) {
     })(),
   );
 
-  // Track which page URLs correspond to index pages
-  const indexPageUrls = new Set<string>();
-
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
     const isIndex = path.basename(page.filename) === 'index.md';
     if (isIndex) {
-      indexPageUrls.add(page.url);
       // index.md → +page.md (same directory)
       page.filename = path.join(path.dirname(page.filename), '+page.md');
     } else if (page.filename.endsWith('.md')) {
@@ -65,8 +61,23 @@ export function load(app: MarkdownApplication) {
     };
   });
 
+  // Computed once on first page render
+  let basePath: string | null = null;
+
   app.renderer.on(MarkdownPageEvent.END, (page) => {
-    const isIndex = indexPageUrls.has(page.url);
+    if (basePath === null) {
+      const outDir = path.resolve(app.options.getValue('out'));
+      const docsRoot = path.resolve(app.options.getValue('docsRoot'));
+      const rel = path.relative(docsRoot, outDir).replace(/\\/g, '/');
+      basePath = rel ? '/' + rel : '';
+    }
+
+    // Directory of the current page relative to the output root (using posix
+    // separators since page.url always uses forward slashes)
+    const pageDir = path.posix.dirname(page.url); // e.g. "interfaces" or "."
+
+    // Transform relative .md links to absolute SvelteKit route paths so that
+    // <Link to="..."> works unambiguously regardless of nesting depth.
     page.contents = page.contents?.replace(
       /\[([^\]]+)\]\((?!https?:|\/|#)([^)]*)\)/g,
       (match: string, text: string, url: string) => {
@@ -80,22 +91,22 @@ export function load(app: MarkdownApplication) {
           return match;
         }
 
-        let newPath: string;
-        if (filePart.endsWith('index.md')) {
-          // Strip 'index.md', keep the directory portion
-          newPath = filePart.slice(0, -'index.md'.length) || './';
+        // Resolve the relative path against the page's own directory so that
+        // "../type-aliases/Foo.md" from "interfaces/Bar.md" becomes
+        // "type-aliases/Foo.md" (output-root-relative).
+        const prefix = pageDir !== '.' ? pageDir + '/' : '';
+        const resolved = path.posix.normalize(prefix + filePart);
+
+        let absolutePath: string;
+        if (resolved.endsWith('index.md')) {
+          // foo/index.md → /basePath/foo/
+          absolutePath = (basePath + '/' + resolved.slice(0, -'index.md'.length)).replace(/\/+/g, '/');
         } else {
-          // Replace .md extension with /
-          newPath = filePart.replace(/\.md$/, '/');
+          // foo/bar.md → /basePath/foo/bar/
+          absolutePath = (basePath + '/' + resolved.replace(/\.md$/, '/')).replace(/\/+/g, '/');
         }
 
-        // Non-index pages moved one level deeper into a subfolder,
-        // so all relative links need an extra ../
-        if (!isIndex) {
-          newPath = '../' + newPath;
-        }
-
-        return `[${text}](${encodeURI(newPath + anchor)})`;
+        return `[${text}](${encodeURI(absolutePath + anchor)})`;
       },
     );
 
