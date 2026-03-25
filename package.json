@@ -1,0 +1,44 @@
+{
+  "name": "typedoc-sveltepress-theme",
+  "version": "1.0.0",
+  "description": "A TypeDoc ( + typedoc-plugin-markdown ) theme that generates Markdown compatible with SveltePress.",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "type": "module",
+  "files": [
+    "dist/"
+  ],
+  "author": "Rene Cutura",
+  "scripts": {
+    "build": "tsc",
+    "pretest": "tsx ./test/scripts/prepare.ts",
+    "test": "mocha --config ./mocha.config.json",
+    "test:update": "pnpm build && node -e \"fs.rmSync('./test/__snapshots__', {recursive:true, force:true})\" && pnpm test"
+  },
+  "peerDependencies": {
+    "typedoc-plugin-markdown": ">=4.11.0",
+    "typedoc": ">=0.28.0"
+  },
+  "devDependencies": {
+    "typedoc-plugin-markdown": "^4.11.0",
+    "typedoc": "^0.28.0",
+    "typescript": "^5.4.5",
+    "mocha": "^10.4.0",
+    "chai": "^5.1.0",
+    "tsx": "^4.9.0",
+    "consola": "^3.2.3",
+    "fs-extra": "^11.2.0",
+    "@types/node": "^20.12.7",
+    "@types/mocha": "^10.0.6",
+    "@types/chai": "^4.3.14",
+    "@types/fs-extra": "^11.0.4"
+  },
+  "license": "MIT",
+  "keywords": [
+    "sveltepress",
+    "typedoc",
+    "markdown",
+    "theme"
+  ]
+}

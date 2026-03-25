@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["es2023", "dom"],
+    "target": "es2022",
+    "typeRoots": ["node_modules/@types"],
+    "declaration": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "removeComments": false,
+    "sourceMap": false,
+    "strictNullChecks": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["./dist", "./test", "**/*.spec.ts", "./tmp/**/*"]
+}

@@ -1,0 +1,5 @@
+---
+title: "InterfaceB"
+---
+
+# Interface: InterfaceB

@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["./stubs/*.ts"],
+  "tsconfig": "./stubs/tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown", "../dist/index.js"],
+  "readme": "none",
+  "disableSources": true,
+  "cleanOutputDir": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true
+}

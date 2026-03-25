@@ -1,0 +1,72 @@
+[
+  {
+    "title": "module-1",
+    "to": "/sidebar-options/module-1/",
+    "collapsible": false,
+    "items": [
+      {
+        "title": "Classes",
+        "collapsible": false,
+        "items": [
+          {
+            "title": "ClassA",
+            "to": "/sidebar-options/module-1/classes/ClassA.md"
+          },
+          {
+            "title": "ClassB",
+            "to": "/sidebar-options/module-1/classes/ClassB.md"
+          }
+        ]
+      },
+      {
+        "title": "Interfaces",
+        "collapsible": false,
+        "items": [
+          {
+            "title": "InterfaceA",
+            "to": "/sidebar-options/module-1/interfaces/InterfaceA.md"
+          },
+          {
+            "title": "InterfaceB",
+            "to": "/sidebar-options/module-1/interfaces/InterfaceB.md"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "module-2",
+    "to": "/sidebar-options/module-2/",
+    "collapsible": false,
+    "items": [
+      {
+        "title": "Classes",
+        "collapsible": false,
+        "items": [
+          {
+            "title": "ClassA",
+            "to": "/sidebar-options/module-2/classes/ClassA.md"
+          },
+          {
+            "title": "ClassB",
+            "to": "/sidebar-options/module-2/classes/ClassB.md"
+          }
+        ]
+      },
+      {
+        "title": "Interfaces",
+        "collapsible": false,
+        "items": [
+          {
+            "title": "InterfaceA",
+            "to": "/sidebar-options/module-2/interfaces/InterfaceA.md"
+          },
+          {
+            "title": "InterfaceB",
+            "to": "/sidebar-options/module-2/interfaces/InterfaceB.md"
+          }
+        ]
+      }
+    ]
+  }
+]
